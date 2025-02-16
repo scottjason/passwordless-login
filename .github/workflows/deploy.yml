@@ -1,0 +1,36 @@
+name: CI/CD Pipeline for Backend and Frontend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout backend code
+        uses: actions/checkout@v2
+      - name: Set up Docker for backend
+        run: |
+          docker build -t passwordless-backend .
+      # - name: Push backend to Railway
+      #   uses: railwayapp/railway-action@master
+      #   with:
+      #     service-id: ${{ secrets.RAILWAY_SERVICE_ID }}
+      #     token: ${{ secrets.RAILWAY_TOKEN }}
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout frontend code
+        uses: actions/checkout@v2
+      - name: Set up Docker for frontend
+        run: |
+          docker build -t passwordless-frontend .
+      # - name: Deploy frontend to Vercel
+      #   uses: amondnet/vercel-action@v20
+      #   with:
+      #     vercel_token: ${{ secrets.VERCEL_TOKEN }}
+      #     vercel_project_id: ${{ secrets.VERCEL_PROJECT_ID }}
+      #     vercel_org_id: ${{ secrets.VERCEL_ORG_ID }}
