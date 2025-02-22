@@ -8,36 +8,63 @@ on:
 jobs:
   build-backend_and_run_tests:
     runs-on: ubuntu-latest
+    env:
+      REDIS_HOST: ${{ secrets.REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.REDIS_PORT }}
+      REDIS_USERNAME: ${{ secrets.REDIS_USERNAME }}
+      REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+      SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+      FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+      ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
     steps:
       - name: Checkout backend code
         uses: actions/checkout@v2
-      - name: Set up Docker for backend
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
         run: |
-          docker build -f backend/Dockerfile -t passwordless-backend .
-      - name: Run backend tests
+          cd backend
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Run backend tests with pytest
         run: |
-          docker run passwordless-backend npm test
+          cd backend
+          source venv/bin/activate
+          pytest -v
+
       - name: Install GitHub CLI
         run: sudo apt-get install gh
+
       - name: Comment on PR if tests pass
         if: success()
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body "Tests passed successfully! 🎉"
+          gh pr comment ${{ github.event.pull_request.number }} --body "✅ Backend tests passed successfully! 🎉"
 
   build-frontend_and_run_tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout frontend code
         uses: actions/checkout@v2
+
       - name: Set up Docker for frontend
         run: |
           docker build -f frontend/Dockerfile -t passwordless-frontend .
+
+      # Uncomment this line when frontend tests are added
       # - name: Run frontend tests
       #   run: |
       #     docker run passwordless-frontend npm test
+
       - name: Install GitHub CLI
         run: sudo apt-get install gh
+
       - name: Comment on PR if tests pass
         if: success()
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body "Frontend tests passed successfully! 🎉"
+          gh pr comment ${{ github.event.pull_request.number }} --body "✅ Frontend tests passed successfully! 🎉"

@@ -14,9 +14,27 @@ class OTPService:
     def __init__(self):
         self.from_email = os.getenv("FROM_EMAIL")
         self.sendgrid_api_key = os.getenv("SENDGRID_API_KEY")
-        # Replace with your SendGrid API key
-        # Connect to Redis (you can replace this with a more secure Redis configuration in production)
-        self.redis_client = redis.Redis(host="localhost", port=6379, db=0)
+
+        self.redis_host = os.getenv("REDIS_HOST")
+        self.redis_port = int(os.getenv("REDIS_PORT"))
+        self.redis_username = os.getenv("REDIS_USERNAME")
+        self.redis_password = os.getenv("REDIS_PASSWORD")
+        self.use_ssl = os.getenv("REDIS_USE_SSL").lower() == "true"
+
+        if not self.redis_host or not self.redis_password:
+            raise ValueError("❌ Redis host and password must be set in the .env file!")
+
+        # Configure Redis connection
+        self.redis_client = redis.Redis(
+            host=self.redis_host,
+            port=self.redis_port,
+            username=self.redis_username,
+            password=self.redis_password,
+            decode_responses=True,
+            ssl=self.use_ssl,
+        )
+
+        print("✅ Connected to Redis at:", self.redis_host)
 
     def send_otp_to_email(self, user_email: str, otp: str):
         """Send OTP to the user's email using SendGrid."""
@@ -78,7 +96,7 @@ class OTPService:
         stored_otp = self.redis_client.get(otp_key)
 
         # Check if the OTP in Redis matches the one provided by the user
-        if stored_otp and stored_otp.decode() == otp:
+        if stored_otp and stored_otp == otp:
             # If valid, delete the OTP from Redis after successful validation to prevent reuse
             self.redis_client.delete(otp_key)
             return True
