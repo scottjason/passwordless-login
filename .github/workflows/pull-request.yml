@@ -65,13 +65,20 @@ jobs:
       - name: Checkout frontend code
         uses: actions/checkout@v2
 
-      - name: Set up Docker for frontend
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.11"
+
+      - name: Install dependencies
         run: |
-          docker build -f frontend/Dockerfile -t passwordless-frontend .
+          cd frontend
+          npm ci
 
       - name: Run frontend tests
         run: |
-          docker run passwordless-frontend npm test
+          cd frontend
+          npm test
 
       - name: Install GitHub CLI
         run: sudo apt-get install gh
