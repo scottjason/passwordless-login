@@ -36,18 +36,18 @@ jobs:
           docker push $IMAGE_NAME:$COMMIT_SHA 
           docker push $IMAGE_NAME:latest
 
-  deploy-backend:
+  deploy-backend-to-railway:
     needs: build-and-push-backend
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     steps:
-      - name: Link and Deploy Backend to Railway
+      - name: Set up Railway CLI and Deploy to Railway
         run: |
-          railway link \
+          railway --token ${{ secrets.RAILWAY_TOKEN }} link \
             --project ${{ secrets.RAILWAY_PROJECT_ID }} \
             --service ${{ secrets.RAILWAY_SERVICE_ID }} \
-            --environment production \
-          railway redeploy -y
+            --environment production
+          railway --token ${{ secrets.RAILWAY_TOKEN }} redeploy -y  # Redeploy the service using the latest Docker image
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
