@@ -17,6 +17,15 @@ jobs:
       FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
       ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
     steps:
+      - name: Debug Environment Variables
+        run: |
+          echo "🔍 Debugging Environment Variables:"
+          echo "REDIS_HOST=${REDIS_HOST}"
+          echo "REDIS_PORT=${REDIS_PORT}"
+          echo "REDIS_USERNAME=${REDIS_USERNAME}"
+          echo "REDIS_PASSWORD=********"  # Hide password for security
+          echo "REDIS_USE_SSL=${REDIS_USE_SSL}"
+
       - name: Checkout backend code
         uses: actions/checkout@v2
 
