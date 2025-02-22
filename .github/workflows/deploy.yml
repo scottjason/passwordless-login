@@ -5,26 +5,50 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  build-backend:
+  build-and-deploy-backend:
     runs-on: ubuntu-latest
+    env:
+      COMMIT_SHA: ${{ github.sha }}
+      IMAGE_NAME: ghcr.io/${{ github.repository }}/backend
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SVC_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - name: Checkout backend code
-        uses: actions/checkout@v2
-      - name: Set up Docker for backend
-        run: |
-          docker build -f backend/Dockerfile -t passwordless-backend ./backend
-      - name: Push backend to Railway
-        uses: railwayapp/railway-action@master
-        with:
-          service-id: ${{ secrets.RAILWAY_SERVICE_ID }}
-          token: ${{ secrets.RAILWAY_TOKEN }}
+        uses: actions/checkout@v3
 
-  build-frontend:
+      - name: Log in to GitHub Container Registry (GHCR)
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and Tag Docker Image
+        run: |
+          docker build -f backend/Dockerfile -t $IMAGE_NAME:$COMMIT_SHA ./backend
+          docker tag $IMAGE_NAME:$COMMIT_SHA $IMAGE_NAME:latest
+
+      - name: Push Docker Image to GHCR
+        run: |
+          docker push $IMAGE_NAME:$COMMIT_SHA 
+          docker push $IMAGE_NAME:latest
+
+      - name: Install Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          export PATH="$HOME/.railway/bin:$PATH"
+
+      - name: Deploy Backend to Railway
+        run: railway up --service=${{ env.SVC_ID }} --image=$IMAGE_NAME:$COMMIT_SHA
+
+  build-and-deploy-frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout frontend code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
       - name: Set up Docker for frontend
         run: |
           docker build -f frontend/Dockerfile -t passwordless-frontend ./frontend
