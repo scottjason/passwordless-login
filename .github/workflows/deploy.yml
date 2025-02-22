@@ -39,12 +39,13 @@ jobs:
   deploy-backend:
     needs: build-and-push-backend
     runs-on: ubuntu-latest
-    container: ghcr.io/railwayapp/cli:latest
     env:
       RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - uses: actions/checkout@v3
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli # Install Railway CLI using npm
       - name: Deploy Backend to Railway
         run: |
           railway up --service=${{ env.RAILWAY_SERVICE_ID }} --detach
