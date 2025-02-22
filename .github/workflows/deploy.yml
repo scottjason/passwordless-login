@@ -10,7 +10,7 @@ permissions:
   packages: write
 
 jobs:
-  build-and-push-backend-image:
+  build-and-push-backend:
     runs-on: ubuntu-latest
     env:
       COMMIT_SHA: ${{ github.sha }}
@@ -36,18 +36,18 @@ jobs:
           docker push $IMAGE_NAME:$COMMIT_SHA 
           docker push $IMAGE_NAME:latest
 
-  deploy-backend-image:
-    needs: build-and-push-backend-image
+  deploy-backend:
+    needs: build-and-push-backend
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     steps:
       - name: Link and Deploy Backend to Railway
         run: |
           railway link \
-            --project ${{ env.RAILWAY_PROJECT_ID }} \
-            --service ${{ env.RAILWAY_SERVICE_ID }} \
-            --environment staging  # You can replace 'staging' with your environment (e.g., production)
-          railway redeploy -y  # Redeploy the service using the latest Docker image
+            --project ${{ secrets.RAILWAY_PROJECT_ID }} \
+            --service ${{ secrets.RAILWAY_SERVICE_ID }} \
+            --environment production \
+          railway redeploy -y
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
