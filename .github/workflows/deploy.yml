@@ -10,7 +10,7 @@ permissions:
   packages: write
 
 jobs:
-  deploy-backend:
+  build-and-deploy-backend:
     runs-on: ubuntu-latest
     env:
       COMMIT_SHA: ${{ github.sha }}
@@ -43,7 +43,7 @@ jobs:
       - name: Deploy Backend to Railway
         run: railway up --service=${{ env.SVC_ID }} --image=$IMAGE_NAME:$COMMIT_SHA
 
-  build-frontend:
+  build-and-deploy-frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout frontend code
