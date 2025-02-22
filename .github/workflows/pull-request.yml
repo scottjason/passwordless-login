@@ -4,9 +4,12 @@ on:
   pull_request:
     branches:
       - "*"
+permissions:
+  pull-requests: write
+  contents: read
 
 jobs:
-  build-backend_and_run_tests:
+  build-backend-and-run-tests:
     runs-on: ubuntu-latest
     env:
       REDIS_HOST: ${{ secrets.REDIS_HOST }}
@@ -56,7 +59,7 @@ jobs:
         run: |
           gh pr comment ${{ github.event.pull_request.number }} --body "✅ Backend tests passed successfully! 🎉"
 
-  build-frontend_and_run_tests:
+  build-frontend-and-run-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout frontend code
