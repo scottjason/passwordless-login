@@ -69,10 +69,9 @@ jobs:
         run: |
           docker build -f frontend/Dockerfile -t passwordless-frontend .
 
-      # Uncomment this line when frontend tests are added
-      # - name: Run frontend tests
-      #   run: |
-      #     docker run passwordless-frontend npm test
+      - name: Run frontend tests
+        run: |
+          docker run passwordless-frontend npm test
 
       - name: Install GitHub CLI
         run: sudo apt-get install gh
