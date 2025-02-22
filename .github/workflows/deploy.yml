@@ -33,21 +33,22 @@ jobs:
 
       - name: Push Docker Image to GHCR
         run: |
-          docker push $IMAGE_NAME:$COMMIT_SHA 
+          docker push $IMAGE_NAME:$COMMIT_SHA
           docker push $IMAGE_NAME:latest
 
   deploy-backend:
     needs: build-and-push-backend
     runs-on: ubuntu-latest
-    container: ghcr.io/railwayapp/cli:latest
-    env:
-      RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout backend code
+        uses: actions/checkout@v3
+
       - name: Deploy Backend to Railway
-        run: |
-          railway up --service=${{ env.RAILWAY_SERVICE_ID }} --detach
+        uses: railwayapp/railway-action@latest
+        with:
+          service-id: ${{ secrets.RAILWAY_SERVICE_ID }}
+          token: ${{ secrets.RAILWAY_TOKEN }}
+          environment: "production"
 
   build-and-deploy-frontend:
     runs-on: ubuntu-latest
