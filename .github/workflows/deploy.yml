@@ -7,10 +7,10 @@ on:
 
 permissions:
   contents: read
-  packages: write
+  packages: write #
 
 jobs:
-  build-and-deploy-backend:
+  deploy-backend:
     runs-on: ubuntu-latest
     env:
       COMMIT_SHA: ${{ github.sha }}
@@ -28,34 +28,17 @@ jobs:
       - name: Build and Tag Docker Image
         run: |
           docker build -f backend/Dockerfile -t $IMAGE_NAME:$COMMIT_SHA ./backend
-          docker tag $IMAGE_NAME:$COMMIT_SHA $IMAGE_NAME:latest
+          docker tag $IMAGE_NAME:$COMMIT_SHA $IMAGE_NAME:latest  # Also tag as latest
 
       - name: Push Docker Image to GHCR
         run: |
-          docker push $IMAGE_NAME:$COMMIT_SHA 
-          docker push $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:$COMMIT_SHA  # Push commit-specific tag
+          docker push $IMAGE_NAME:latest       # Push latest tag
 
       - name: Install Railway CLI
         run: |
           curl -fsSL https://railway.app/install.sh | sh
           export PATH="$HOME/.railway/bin:$PATH"
 
-      - name: Deploy Backend to Railway
-        run: railway up --service=${{ env.SVC_ID }} --image=$IMAGE_NAME:$COMMIT_SHA
-
-  build-and-deploy-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout frontend code
-        uses: actions/checkout@v3
-
-      - name: Set up Docker for frontend
-        run: |
-          docker build -f frontend/Dockerfile -t passwordless-frontend ./frontend
-
-      # - name: Deploy frontend to Vercel
-      #   uses: amondnet/vercel-action@v20
-      #   with:
-      #     vercel_token: ${{ secrets.VERCEL_TOKEN }}
-      #     vercel_project_id: ${{ secrets.VERCEL_PROJECT_ID }}
-      #     vercel_org_id: ${{ secrets.VERCEL_ORG_ID }}
+      - name: 🚀 Trigger Railway Deployment
+        run: railway up --service=${{ env.SVC_ID }} --detach
