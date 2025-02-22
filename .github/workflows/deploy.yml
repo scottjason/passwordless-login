@@ -14,11 +14,11 @@ jobs:
       - name: Set up Docker for backend
         run: |
           docker build -f backend/Dockerfile -t passwordless-backend ./backend
-      # - name: Push backend to Railway
-      #   uses: railwayapp/railway-action@master
-      #   with:
-      #     service-id: ${{ secrets.RAILWAY_SERVICE_ID }}
-      #     token: ${{ secrets.RAILWAY_TOKEN }}
+      - name: Push backend to Railway
+        uses: railwayapp/railway-action@master
+        with:
+          service-id: ${{ secrets.RAILWAY_SERVICE_ID }}
+          token: ${{ secrets.RAILWAY_TOKEN }}
 
   build-frontend:
     runs-on: ubuntu-latest
