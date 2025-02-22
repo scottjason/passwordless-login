@@ -10,7 +10,7 @@ permissions:
   packages: write
 
 jobs:
-  build-and-deploy-backend:
+  build-and-push-backend-image:
     runs-on: ubuntu-latest
     env:
       COMMIT_SHA: ${{ github.sha }}
@@ -36,8 +36,8 @@ jobs:
           docker push $IMAGE_NAME:$COMMIT_SHA 
           docker push $IMAGE_NAME:latest
 
-  deploy-backend-to-railway:
-    needs: build-and-deploy-backend
+  deploy-backend-image:
+    needs: build-and-push-backend-image
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     steps:
