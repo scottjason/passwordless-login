@@ -41,7 +41,7 @@ jobs:
           export PATH="$HOME/.railway/bin:$PATH"
 
       - name: Deploy Backend to Railway
-        run: railway up --service=${{ env.SVC_ID }} --image=$IMAGE_NAME:$COMMIT_SHA
+        run: railway up --service=${{ env.SVC_ID }} --detach
 
   build-and-deploy-frontend:
     runs-on: ubuntu-latest
@@ -52,7 +52,6 @@ jobs:
       - name: Set up Docker for frontend
         run: |
           docker build -f frontend/Dockerfile -t passwordless-frontend ./frontend
-
       # - name: Deploy frontend to Vercel
       #   uses: amondnet/vercel-action@v20
       #   with:
