@@ -4,19 +4,32 @@ on:
   pull_request:
     branches:
       - "*"
+permissions:
+  pull-requests: write
+  contents: read
 
 jobs:
-  build-backend_and_run_tests:
+  build-backend-and-run-tests:
     runs-on: ubuntu-latest
     env:
       REDIS_HOST: ${{ secrets.REDIS_HOST }}
       REDIS_PORT: ${{ secrets.REDIS_PORT }}
       REDIS_USERNAME: ${{ secrets.REDIS_USERNAME }}
       REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+      REDIS_USE_SSL: ${{ secrets.REDIS_USE_SSL }}
       SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
       FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
-      ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - name: Debug Environment Variables
+        run: |
+          echo "🔍 Debugging Environment Variables:"
+          echo "REDIS_HOST=${REDIS_HOST}"
+          echo "REDIS_PORT=${REDIS_PORT}"
+          echo "REDIS_USERNAME=${REDIS_USERNAME}"
+          echo "REDIS_PASSWORD=********"  # Hide password for security
+          echo "REDIS_USE_SSL=${REDIS_USE_SSL}"
+
       - name: Checkout backend code
         uses: actions/checkout@v2
 
@@ -46,20 +59,28 @@ jobs:
         run: |
           gh pr comment ${{ github.event.pull_request.number }} --body "✅ Backend tests passed successfully! 🎉"
 
-  build-frontend_and_run_tests:
+  build-frontend-and-run-tests:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout frontend code
         uses: actions/checkout@v2
 
-      - name: Set up Docker for frontend
-        run: |
-          docker build -f frontend/Dockerfile -t passwordless-frontend .
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.11"
 
-      # Uncomment this line when frontend tests are added
-      # - name: Run frontend tests
-      #   run: |
-      #     docker run passwordless-frontend npm test
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test
 
       - name: Install GitHub CLI
         run: sudo apt-get install gh
