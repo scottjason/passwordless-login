@@ -10,20 +10,18 @@ permissions:
   packages: write
 
 jobs:
-  build-and-deploy-backend:
+  build-and-push-backend-image:
     runs-on: ubuntu-latest
     env:
       COMMIT_SHA: ${{ github.sha }}
       IMAGE_NAME: ghcr.io/${{ github.repository }}/backend
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      SVC_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+      RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - name: Checkout backend code
         uses: actions/checkout@v3
-
-      - name: Extract Short Commit SHA
-        run: echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Log in to GitHub Container Registry (GHCR)
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -38,15 +36,20 @@ jobs:
           docker push $IMAGE_NAME:$COMMIT_SHA 
           docker push $IMAGE_NAME:latest
 
-      - name: Install Railway CLI
+  deploy-backend-image-railway:
+    needs: build-and-push-backend-image
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    steps:
+      - name: Login to Railway and Deploy
         run: |
-          curl -fsSL https://railway.app/install.sh | sh
-          echo "$HOME/.railway/bin" >> $GITHUB_PATH
-
-      - name: Deploy Backend to Railway
-        run: |
-          cd backend
-          railway up --service=${{ env.SVC_ID }} --detach
+          railway login
+          railway link \
+            --project ${{ env.RAILWAY_PROJECT_ID }} \
+            --service ${{ env.RAILWAY_SERVICE_ID }} \
+          railway redeploy -y  # Redeploy the service with the latest tag
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
   build-and-deploy-frontend:
     runs-on: ubuntu-latest
