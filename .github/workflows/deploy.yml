@@ -40,16 +40,16 @@ jobs:
     needs: build-and-push-backend
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
     steps:
-      - name: Set up Railway CLI and Deploy to Railway
+      - uses: actions/checkout@v3
+      - name: Deploy to Railway
         run: |
-          railway link \
-            --project ${{ secrets.RAILWAY_PROJECT_ID }} \
-            --service ${{ secrets.RAILWAY_SERVICE_ID }} \
-            --environment production
-          railway redeploy -y  # Redeploy the service using the latest Docker image
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          railway login --token $RAILWAY_TOKEN
+          railway link --project $RAILWAY_PROJECT_ID --service $RAILWAY_SERVICE_ID --environment production
+          railway redeploy -y
 
   build-and-deploy-frontend:
     runs-on: ubuntu-latest
