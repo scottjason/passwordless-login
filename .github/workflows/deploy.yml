@@ -45,4 +45,4 @@ jobs:
       - uses: actions/checkout@v3
       - name: Deploy Backend to Railway
         run: |
-          railway redeploy -y
+          railway redeploy -y --service $RAILWAY_SERVICE_ID
