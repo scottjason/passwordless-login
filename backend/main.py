@@ -41,7 +41,6 @@ def generate_otp(request: OTPRequest):
     response = JSONResponse(
         content={"message": "OTP generated and sent to email", "nonce": nonce}
     )
-    response.headers["Access-Control-Allow-Origin"] = base_api_url
     return response
 
 
@@ -52,5 +51,4 @@ def validate_otp(user_id: str, otp: str, nonce: str):
         response = JSONResponse(content={"message": "OTP is valid"})
     else:
         response = JSONResponse(content={"detail": "Invalid OTP"}, status_code=400)
-    response.headers["Access-Control-Allow-Origin"] = base_api_url
     return response
