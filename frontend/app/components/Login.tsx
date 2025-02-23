@@ -15,6 +15,7 @@ export const Login = () => {
     try {
       const response = await fetch(reqUrl, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_email: email, user_id: 'user123' }),
       });

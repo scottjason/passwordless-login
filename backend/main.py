@@ -1,4 +1,5 @@
 import os
+from fastapi.responses import JSONResponse
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from services.otp_service import OTPService
@@ -11,8 +12,6 @@ base_api_url = os.getenv("BASE_API_URL")
 if not base_api_url:
     raise ValueError("BASE_API_URL environment variable is not set")
 
-print(f"Loaded BASE_API_URL: {base_api_url}")
-
 origins = [
     base_api_url,
 ]
@@ -22,10 +21,10 @@ otp_service = OTPService()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Allows only specified origins (localhost:3000)
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -39,13 +38,19 @@ class OTPRequest(BaseModel):
 def generate_otp(request: OTPRequest):
     """Endpoint to generate and return an OTP for the given user."""
     nonce = otp_service.generate_otp(request.user_id, request.user_email)
-    return {"message": "OTP generated and sent to email", "nonce": nonce}
+    response = JSONResponse(
+        content={"message": "OTP generated and sent to email", "nonce": nonce}
+    )
+    response.headers["Access-Control-Allow-Origin"] = base_api_url
+    return response
 
 
 @app.post("/validate-otp")
 def validate_otp(user_id: str, otp: str, nonce: str):
     """Endpoint to validate the OTP for a given user."""
     if otp_service.validate_otp(user_id, otp, nonce):
-        return {"message": "OTP is valid"}
+        response = JSONResponse(content={"message": "OTP is valid"})
     else:
-        raise HTTPException(status_code=400, detail="Invalid OTP")
+        response = JSONResponse(content={"detail": "Invalid OTP"}, status_code=400)
+    response.headers["Access-Control-Allow-Origin"] = base_api_url
+    return response
