@@ -40,13 +40,12 @@ jobs:
   deploy-backend:
     needs: build-and-push-backend
     runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
-      - name: Checkout backend code
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - name: Deploy Backend to Railway
-        uses: bervProject/railway-deploy@main
-        with:
-          service: ${{ secrets.RAILWAY_SERVICE_ID }}
-          railway_token: ${{ secrets.RAILWAY_TOKEN }}
-          environment: "production"
+        run: |
+          railway up --service=${{ env.RAILWAY_SERVICE_ID }} --detach
