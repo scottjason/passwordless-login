@@ -48,4 +48,4 @@ jobs:
           echo "Deploying $IMAGE_NAME:${{ github.sha }} to Railway"
       - name: Deploy Backend to Railway
         run: |
-          railway redeploy -y --service $RAILWAY_SERVICE_ID --docker-image $IMAGE_NAME:${{ github.sha }}
+          railway redeploy -y --service $RAILWAY_SERVICE_ID
