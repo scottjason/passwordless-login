@@ -37,15 +37,9 @@ class OTPRequest(BaseModel):
     user_email: str
 
 
-@app.options("/generate-otp")
-def handle_options():
-    headers = {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    }
-    logging.debug(f"Response Headers for /generate-otp: {headers}")
-    return JSONResponse(status_code=200, headers=headers)
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to OTP Service"}
 
 
 @app.post("/generate-otp")
