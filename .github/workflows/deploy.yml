@@ -30,8 +30,8 @@ jobs:
 
       - name: Build and Push Docker Image to GHCR
         run: |
-          docker build -f backend/Dockerfile -t $IMAGE_NAME:latest ./backend
-          docker push $IMAGE_NAME:latest
+          docker build -f backend/Dockerfile -t $IMAGE_NAME:${{ github.sha }} ./backend
+          docker push $IMAGE_NAME:${{ github.sha }}
 
   deploy-backend:
     needs: build-and-push-backend
@@ -43,6 +43,9 @@ jobs:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - uses: actions/checkout@v3
+      - name: Print Docker Image Tag
+        run: |
+          echo "Deploying $IMAGE_NAME:${{ github.sha }} to Railway"
       - name: Deploy Backend to Railway
         run: |
-          railway redeploy -y --service $RAILWAY_SERVICE_ID
+          railway redeploy -y --service $RAILWAY_SERVICE_ID --docker-image $IMAGE_NAME:${{ github.sha }}
