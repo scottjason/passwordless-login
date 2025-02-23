@@ -1,7 +1,7 @@
 import os
-from fastapi.responses import JSONResponse
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.responses import JSONResponse
 from services.otp_service import OTPService
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
