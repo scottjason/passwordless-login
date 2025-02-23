@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for Backend and Frontend
+name: CI/CD Pipeline for Backend on Main Branch
 
 on:
   push:
@@ -19,6 +19,8 @@ jobs:
       RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
       RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - name: Checkout backend code
         uses: actions/checkout@v3
@@ -48,19 +50,3 @@ jobs:
           service: ${{ secrets.RAILWAY_SERVICE_ID }}
           railway_token: ${{ secrets.RAILWAY_TOKEN }}
           environment: "production"
-
-  build-and-deploy-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout frontend code
-        uses: actions/checkout@v3
-
-      - name: Set up Docker for frontend
-        run: |
-          docker build -f frontend/Dockerfile -t passwordless-frontend ./frontend
-      # - name: Deploy frontend to Vercel
-      #   uses: amondnet/vercel-action@v20
-      #   with:
-      #     vercel_token: ${{ secrets.VERCEL_TOKEN }}
-      #     vercel_project_id: ${{ secrets.VERCEL_PROJECT_ID }}
-      #     vercel_org_id: ${{ secrets.VERCEL_ORG_ID }}
