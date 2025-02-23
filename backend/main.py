@@ -51,8 +51,3 @@ def validate_otp(user_id: str, otp: str, nonce: str):
     else:
         response = JSONResponse(content={"detail": "Invalid OTP"}, status_code=400)
     return response
-
-
-# python web server
-if __name__ == "__main__":
-    app.run(debug=True, port=os.getenv("PORT", default=3000))
