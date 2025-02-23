@@ -1,6 +1,5 @@
 import os
 import logging
-
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
@@ -40,7 +39,12 @@ class OTPRequest(BaseModel):
 
 @app.options("/generate-otp")
 def handle_options():
-    return JSONResponse(status_code=200)
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    }
+    return JSONResponse(status_code=200, headers=headers)
 
 
 @app.post("/generate-otp")
