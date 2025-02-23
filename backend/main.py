@@ -7,8 +7,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+base_api_url = os.getenv("BASE_API_URL")
+if not base_api_url:
+    raise ValueError("BASE_API_URL environment variable is not set")
+
+print(f"Loaded BASE_API_URL: {base_api_url}")
+
 origins = [
-    os.getenv("BASE_API_URL"),
+    base_api_url,
 ]
 
 app = FastAPI()
