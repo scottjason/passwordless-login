@@ -29,14 +29,14 @@ class OTPRequest(BaseModel):
     user_email: str
 
 
-@app.post("/generate-otp/")
+@app.post("/generate-otp")
 def generate_otp(request: OTPRequest):
     """Endpoint to generate and return an OTP for the given user."""
     nonce = otp_service.generate_otp(request.user_id, request.user_email)
     return {"message": "OTP generated and sent to email", "nonce": nonce}
 
 
-@app.post("/validate-otp/")
+@app.post("/validate-otp")
 def validate_otp(user_id: str, otp: str, nonce: str):
     """Endpoint to validate the OTP for a given user."""
     if otp_service.validate_otp(user_id, otp, nonce):
