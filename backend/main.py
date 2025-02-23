@@ -1,4 +1,6 @@
 import os
+import logging
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
@@ -7,10 +9,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 load_dotenv()
+logging.basicConfig(level=logging.DEBUG)
 
 base_api_url = os.getenv("BASE_API_URL")
 if not base_api_url:
     raise ValueError("BASE_API_URL environment variable is not set")
+
+logging.debug(f"Base API URL: {base_api_url}")
 
 origins = [
     base_api_url,
@@ -33,6 +38,11 @@ class OTPRequest(BaseModel):
     user_email: str
 
 
+@app.options("/generate-otp")
+def handle_options():
+    return JSONResponse(status_code=200)
+
+
 @app.post("/generate-otp")
 def generate_otp(request: OTPRequest):
     """Endpoint to generate and return an OTP for the given user."""
@@ -40,6 +50,7 @@ def generate_otp(request: OTPRequest):
     response = JSONResponse(
         content={"message": "OTP generated and sent to email", "nonce": nonce}
     )
+    logging.debug(f"Response Headers for /generate-otp: {response.headers}")
     return response
 
 
@@ -50,4 +61,5 @@ def validate_otp(user_id: str, otp: str, nonce: str):
         response = JSONResponse(content={"message": "OTP is valid"})
     else:
         response = JSONResponse(content={"detail": "Invalid OTP"}, status_code=400)
+    logging.debug(f"Response Headers for /validate-otp: {response.headers}")
     return response
