@@ -44,6 +44,7 @@ def handle_options():
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
     }
+    logging.debug(f"Response Headers for /generate-otp: {headers}")
     return JSONResponse(status_code=200, headers=headers)
 
 
