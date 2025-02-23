@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from services.otp_service import OTPService
@@ -7,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 origins = [
-    "http://localhost:3000",  # Allow frontend on port 3000
+    os.getenv("BASE_API_URL"),
 ]
 
 app = FastAPI()

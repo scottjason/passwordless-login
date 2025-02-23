@@ -11,9 +11,9 @@ export const Login = () => {
   const requestOtp = async () => {
     setLoading(true);
     setError('');
-
+    const reqUrl = process.env.NEXT_PUBLIC_API_URL + '/generate-otp';
     try {
-      const response = await fetch('http://localhost:8000/generate-otp', {
+      const response = await fetch(reqUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_email: email, user_id: 'user123' }),
